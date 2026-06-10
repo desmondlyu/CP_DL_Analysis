@@ -134,8 +134,8 @@
       background-color: #2563eb;
       color: white;
       border: none;
-      padding: 5px 10px;
-      font-size: 11px;
+      padding: 6px 12px;
+      font-size: 13px;
       font-weight: 500;
       border-radius: 4px;
       cursor: pointer;
@@ -168,8 +168,8 @@
     }
 
     .btn-xs {
-      padding: 1px 5px;
-      font-size: 9px;
+      padding: 3px 6px;
+      font-size: 11px;
     }
 
     /* Form Styles */
@@ -179,7 +179,7 @@
 
     .form-label {
       display: block;
-      font-size: 10px;
+      font-size: 12px;
       font-weight: 500;
       text-transform: uppercase;
       color: #9ca3af;
@@ -193,8 +193,8 @@
       border: 1px solid #374151;
       border-radius: 4px;
       color: #f3f4f6;
-      padding: 5px 8px;
-      font-size: 11px;
+      padding: 6px 10px;
+      font-size: 13px;
       box-sizing: border-box;
     }
 
@@ -215,7 +215,7 @@
       background: none;
       border: none;
       padding: 8px;
-      font-size: 11px;
+      font-size: 13px;
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -287,7 +287,7 @@
             <polyline points="17 8 12 3 7 8"></polyline>
             <line x1="12" y1="3" x2="12" y2="15"></line>
           </svg>
-          <p id="upload-status" style="margin: 0; fontSize: 10px; color: #9ca3af;">點擊或拖曳測試資料至此</p>
+          <p id="upload-status" style="margin: 0; font-size: 12px; color: #9ca3af;">點擊或拖曳測試資料至此</p>
         </div>
         <input type="file" id="file-input" style="display: none;" />
       </div>
@@ -299,16 +299,16 @@
       </div>
 
       <div class="tab-content" id="sidebar-controls-container">
-        <div style="font-size: 11px; color: #6b7280; font-style: italic; text-align: center; margin-top: 32px;">
+        <div style="font-size: 13px; color: #6b7280; font-style: italic; text-align: center; margin-top: 32px;">
           請先載入測試資料以啟用篩選控制項
         </div>
       </div>
 
       <!-- Footer -->
-      <footer style="padding: 12px; border-top: 1px solid #1f2937; font-size: 9px; color: #6b7280; background-color: #0f172a; line-height: 1.5; box-sizing: border-box;">
+      <footer style="padding: 12px; border-top: 1px solid #1f2937; font-size: 11px; color: #6b7280; background-color: #0f172a; line-height: 1.5; box-sizing: border-box;">
         <div style="font-weight: 600; color: #9ca3af; margin-bottom: 2px;">CP DL Analysis Tool by PP32 YPLu (Desmond)</div>
         <div>Contact: <a href="mailto:yplu@winbond.com" style="color: #3b82f6; text-decoration: none;">yplu@winbond.com</a></div>
-        <div style="margin-top: 2px; font-size: 8px; color: #4b5563;">Copyright © 2026 PP32 YPLu (Desmond) ｜ MIT License</div>
+        <div style="margin-top: 2px; font-size: 10px; color: #4b5563;">Copyright © 2026 PP32 YPLu (Desmond) ｜ MIT License</div>
       </footer>
     </aside>
 
@@ -765,7 +765,7 @@
               ${getFilteredParams(distSearchKeyword).map(param => {
                 const isChecked = state.selectedDistParams.includes(param);
                 return `
-                  <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; cursor: pointer;">
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
                     <input type="checkbox" class="dist-param-checkbox" data-param="${param}" ${isChecked ? "checked" : ""} />
                     <span>${param}</span>
                   </label>
@@ -811,7 +811,7 @@
 
     function renderDynamicFilterControls(activeParams) {
       if (activeParams.length === 0) {
-        return `<div style="font-size: 11px; color: #6b7280; font-style: italic;">請先選擇或勾選參數</div>`;
+        return `<div style="font-size: 13px; color: #6b7280; font-style: italic;">請先選擇或勾選參數</div>`;
       }
 
       return activeParams.map((param) => {
@@ -831,7 +831,7 @@
               </div>
               <div style="max-height: 100px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding: 4px; background-color: #0b0f19; border: 1px solid #374151; border-radius: 4px;">
                 ${categories.map(cat => `
-                  <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; cursor: pointer;">
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
                     <input type="checkbox" class="cat-item-checkbox" data-param="${param}" data-cat="${cat}" ${checkedCats.includes(cat) ? "checked" : ""} />
                     <span>${cat}</span>
                   </label>
@@ -851,11 +851,11 @@
               <span class="form-label">${param} (值域篩選)</span>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                 <div>
-                  <label style="font-size: 9px; color: #6b7280;">MIN (${minLimit.toFixed(3)})</label>
+                  <label style="font-size: 11px; color: #6b7280;">MIN (${minLimit.toFixed(3)})</label>
                   <input type="number" class="form-control range-min-input" data-param="${param}" step="0.001" value="${isNaN(currentMin) ? "" : currentMin}" />
                 </div>
                 <div>
-                  <label style="font-size: 9px; color: #6b7280;">MAX (${maxLimit.toFixed(3)})</label>
+                  <label style="font-size: 11px; color: #6b7280;">MAX (${maxLimit.toFixed(3)})</label>
                   <input type="number" class="form-control range-max-input" data-param="${param}" step="0.001" value="${isNaN(currentMax) ? "" : currentMax}" />
                 </div>
               </div>
@@ -983,7 +983,7 @@
             listDiv.innerHTML = getFilteredParams(distSearchKeyword).map(param => {
               const isChecked = state.selectedDistParams.includes(param);
               return `
-                <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; cursor: pointer;">
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
                   <input type="checkbox" class="dist-param-checkbox" data-param="${param}" ${isChecked ? "checked" : ""} />
                   <span>${param}</span>
                 </label>
