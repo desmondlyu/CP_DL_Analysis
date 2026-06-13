@@ -26,7 +26,6 @@
     }
 
     /* Swiss Grid Layout */
-
     .dashboard-container {
       display: grid;
       grid-template-columns: 340px 1fr;
@@ -37,7 +36,6 @@
     }
 
     /* Sidebar */
-
     .sidebar {
       background-color: #111827;
       border-right: 1px solid #1f2937;
@@ -48,7 +46,6 @@
     }
 
     /* Data-Dense Grid (BI Dashboard 2x2) */
-
     .charts-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -117,27 +114,22 @@
     }
 
     /* Custom Scrollbar */
-
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
-
     ::-webkit-scrollbar-track {
       background: #111827;
     }
-
     ::-webkit-scrollbar-thumb {
       background: #374151;
       border-radius: 3px;
     }
-
     ::-webkit-scrollbar-thumb:hover {
       background: #4b5563;
     }
 
     /* Common UI Elements */
-
     .btn {
       background-color: #2563eb;
       color: white;
@@ -181,7 +173,6 @@
     }
 
     /* Form Styles */
-
     .form-group {
       margin-bottom: 10px;
     }
@@ -213,7 +204,6 @@
     }
 
     /* Tabs */
-
     .tabs-header {
       display: flex;
       border-bottom: 1px solid #1f2937;
@@ -246,7 +236,6 @@
     }
 
     /* Welcome Card */
-
     .welcome-container {
       display: flex;
       flex-direction: column;
@@ -635,11 +624,59 @@
       // 替換右側為四宮格網格佈局
       const mainPanel = document.getElementById("main-panel");
       mainPanel.innerHTML = `
-        <div class="charts-grid">
-          <div class="chart-card"><div class="chart-header"><span class="chart-title" id="wafer-title">Wafer Map</span><div class="chart-actions" id="wafer-actions"></div></div><div class="chart-content"><canvas id="wafer-canvas"></canvas></div></div>
-          <div class="chart-card"><div class="chart-header"><span class="chart-title" id="corr-title">Correlation</span><span class="chart-info" id="corr-info"></span><div class="chart-actions" id="corr-actions"></div></div><div class="chart-content"><canvas id="corr-canvas"></canvas></div></div>
-          <div class="chart-card"><div class="chart-header"><span class="chart-title" id="box-title">Boxplot</span><div class="chart-actions" id="box-actions"></div></div><div class="chart-content"><canvas id="box-canvas"></canvas></div></div>
-          <div class="chart-card"><div class="chart-header"><span class="chart-title" id="hist-title">Histogram</span><div class="chart-actions" id="hist-actions"></div></div><div class="chart-content"><canvas id="hist-canvas"></canvas></div></div>
+        <div style="display: flex; flex-direction: column; height: 100vh; width: 100%; overflow: hidden; background-color: #0b0f19;">
+          <!-- Workspace 控制面板/工具列 -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background-color: #111827; border-bottom: 1px solid #1f2937; box-sizing: border-box; height: 45px;">
+            <span style="font-size: 11px; color: #9ca3af; font-weight: 600; letter-spacing: 0.05em;">
+              📊 ANALYSIS WORKSPACE
+            </span>
+            <div id="global-reset-container" style="display: flex; gap: 8px;">
+              <!-- 這裡會動態載入重置按鈕 -->
+            </div>
+          </div>
+          <div class="charts-grid" style="flex: 1; height: calc(100vh - 45px); padding: 12px; box-sizing: border-box;">
+            <div class="chart-card">
+              <div class="chart-header">
+                <span class="chart-title" id="wafer-title">Wafer Map</span>
+                <div class="chart-actions" id="wafer-actions"></div>
+              </div>
+              <div class="chart-content">
+                <canvas id="wafer-canvas"></canvas>
+                <div id="wafer-selection-box" style="position: absolute; border: 2px solid #FF3B30; background-color: rgba(255, 59, 48, 0.15); display: none; pointer-events: none;"></div>
+              </div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-header">
+                <span class="chart-title" id="corr-title">Correlation</span>
+                <span class="chart-info" id="corr-info"></span>
+                <div class="chart-actions" id="corr-actions"></div>
+              </div>
+              <div class="chart-content">
+                <canvas id="corr-canvas"></canvas>
+                <div id="corr-selection-box" style="position: absolute; border: 2px solid #FF3B30; background-color: rgba(255, 59, 48, 0.15); display: none; pointer-events: none;"></div>
+              </div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-header">
+                <span class="chart-title" id="box-title">Boxplot</span>
+                <div class="chart-actions" id="box-actions"></div>
+              </div>
+              <div class="chart-content">
+                <canvas id="box-canvas"></canvas>
+                <div id="box-selection-box" style="position: absolute; border: 2px solid #FF3B30; background-color: rgba(255, 59, 48, 0.15); display: none; pointer-events: none;"></div>
+              </div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-header">
+                <span class="chart-title" id="hist-title">Histogram</span>
+                <div class="chart-actions" id="hist-actions"></div>
+              </div>
+              <div class="chart-content">
+                <canvas id="hist-canvas"></canvas>
+                <div id="hist-selection-box" style="position: absolute; border: 2px solid #FF3B30; background-color: rgba(255, 59, 48, 0.15); display: none; pointer-events: none;"></div>
+              </div>
+            </div>
+          </div>
         </div>
       `;
 
@@ -689,6 +726,25 @@
       // 3. 渲染控制面板與圖表
       renderSidebarControls();
       triggerRedraw();
+
+      // 4. 動態更新全域重置按鈕
+      const resetContainer = document.getElementById("global-reset-container");
+      if (resetContainer) {
+        if (state.spatialFilterRange !== null || state.highlightIndices.size > 0) {
+          resetContainer.innerHTML = `
+            <button class="btn btn-secondary btn-danger" id="global-reset-btn" style="padding: 4px 12px; font-size: 11px; font-weight: 600; border-radius: 4px; display: inline-flex; align-items: center; gap: 6px;">
+              🔄 取消所有框選 / 重置高亮
+            </button>
+          `;
+          document.getElementById("global-reset-btn").addEventListener("click", () => {
+            state.spatialFilterRange = null;
+            state.highlightIndices.clear();
+            updateDataAndRender();
+          });
+        } else {
+          resetContainer.innerHTML = "";
+        }
+      }
     }
 
     function triggerRedraw() {
@@ -1350,11 +1406,19 @@
         stats: calculateBoxPlotStats(data.map(r => Number(r[param])).filter(v => !isNaN(v)))
       })).filter(b => b.stats !== null);
 
-      if (boxStats.length === 0) return;
+      if (boxStats.length === 0) {
+        ctx.fillStyle = "#6b7280";
+        ctx.font = "14px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("無有效資料", canvas.width / 2, canvas.height / 2);
+        return;
+      }
 
       const allVals = boxStats.flatMap(b => [b.stats.min, b.stats.max]);
       let yMin = Math.min(...allVals);
       let yMax = Math.max(...allVals);
+
+      if (yMin === yMax) { yMin -= 0.5; yMax += 0.5; }
 
       if (state.distBoxYScale === "log" && yMin > 0) {
         yMin = Math.log10(yMin);
@@ -1466,6 +1530,8 @@
           max = Math.max(...vals.filter(v => !isNaN(v)));
         }
 
+        if (min === max) { min -= 0.5; max += 0.5; }
+
         const bins = 15;
         const binSize = (max - min) / bins;
         const histogram = new Array(bins).fill(0);
@@ -1480,7 +1546,13 @@
         return { param, vals, min, max, histogram, idx };
       }).filter(h => h !== null);
 
-      if (histograms.length === 0) return;
+      if (histograms.length === 0) {
+        ctx.fillStyle = "#6b7280";
+        ctx.font = "14px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("無有效資料", canvas.width / 2, canvas.height / 2);
+        return;
+      }
 
       histograms.forEach(h => {
         const maxCount = Math.max(...h.histogram);
@@ -1514,25 +1586,47 @@
 
     function initWaferCanvasEvents() {
       const canvas = document.getElementById("wafer-canvas");
-      if (!canvas) return;
+      const box = document.getElementById("wafer-selection-box");
+      if (!canvas || !box) return;
 
       let isSelecting = false;
       let startX, startY;
 
       canvas.addEventListener("mousedown", (e) => {
+        if (!state.nonSpatialFilteredData || state.nonSpatialFilteredData.length === 0) return;
         const rect = canvas.getBoundingClientRect();
         startX = e.clientX - rect.left;
         startY = e.clientY - rect.top;
         isSelecting = true;
+
+        box.style.left = startX + "px";
+        box.style.top = startY + "px";
+        box.style.width = "0px";
+        box.style.height = "0px";
+        box.style.display = "block";
       });
 
       canvas.addEventListener("mousemove", (e) => {
         if (!isSelecting) return;
+        const rect = canvas.getBoundingClientRect();
+        const curX = Math.max(0, Math.min(canvas.width, e.clientX - rect.left));
+        const curY = Math.max(0, Math.min(canvas.height, e.clientY - rect.top));
+
+        const left = Math.min(startX, curX);
+        const top = Math.min(startY, curY);
+        const width = Math.abs(startX - curX);
+        const height = Math.abs(startY - curY);
+
+        box.style.left = left + "px";
+        box.style.top = top + "px";
+        box.style.width = width + "px";
+        box.style.height = height + "px";
       });
 
       canvas.addEventListener("mouseup", (e) => {
         if (!isSelecting) return;
         isSelecting = false;
+        box.style.display = "none";
 
         const rect = canvas.getBoundingClientRect();
         const endX = e.clientX - rect.left;
@@ -1548,6 +1642,8 @@
         }
 
         const data = state.nonSpatialFilteredData;
+        if (!data || data.length === 0) return;
+
         const xvals = data.map(r => Number(r.X)).filter(x => !isNaN(x));
         const yvals = data.map(r => Number(r.Y)).filter(y => !isNaN(y));
 
@@ -1558,10 +1654,22 @@
         const yMin = Math.min(...yvals);
         const yMax = Math.max(...yvals);
 
-        const x1_norm = (Math.min(startX, endX) - margin) / plotW * (xMax - xMin) + xMin;
-        const x2_norm = (Math.max(startX, endX) - margin) / plotW * (xMax - xMin) + xMin;
-        const y1_norm = yMax - (Math.max(startY, endY) - margin) / plotH * (yMax - yMin);
-        const y2_norm = yMax - (Math.min(startY, endY) - margin) / plotH * (yMax - yMin);
+        const xRangeDiff = xMax - xMin;
+        const yRangeDiff = yMax - yMin;
+
+        const x1_norm = (Math.min(startX, endX) - margin) / plotW * xRangeDiff + xMin;
+        const x2_norm = (Math.max(startX, endX) - margin) / plotW * xRangeDiff + xMin;
+        const y1_norm = yMax - (Math.max(startY, endY) - margin) / plotH * yRangeDiff;
+        const y2_norm = yMax - (Math.min(startY, endY) - margin) / plotH * yRangeDiff;
+
+        // Fail-safe: 檢查是否有任何點在框選範圍內
+        const hasPoints = data.some(row => {
+          const x = Number(row.X);
+          const y = Number(row.Y);
+          return !isNaN(x) && !isNaN(y) && x >= x1_norm && x <= x2_norm && y >= y1_norm && y <= y2_norm;
+        });
+
+        if (!hasPoints) return;
 
         state.spatialFilterRange = { x: [x1_norm, x2_norm], y: [y1_norm, y2_norm] };
         updateDataAndRender();
@@ -1570,21 +1678,47 @@
 
     function initCorrCanvasEvents() {
       const canvas = document.getElementById("corr-canvas");
-      if (!canvas) return;
+      const box = document.getElementById("corr-selection-box");
+      if (!canvas || !box) return;
 
       let isSelecting = false;
       let startX, startY;
 
       canvas.addEventListener("mousedown", (e) => {
+        if (!state.filteredData || state.filteredData.length === 0) return;
         const rect = canvas.getBoundingClientRect();
         startX = e.clientX - rect.left;
         startY = e.clientY - rect.top;
         isSelecting = true;
+
+        box.style.left = startX + "px";
+        box.style.top = startY + "px";
+        box.style.width = "0px";
+        box.style.height = "0px";
+        box.style.display = "block";
+      });
+
+      canvas.addEventListener("mousemove", (e) => {
+        if (!isSelecting) return;
+        const rect = canvas.getBoundingClientRect();
+        const curX = Math.max(0, Math.min(canvas.width, e.clientX - rect.left));
+        const curY = Math.max(0, Math.min(canvas.height, e.clientY - rect.top));
+
+        const left = Math.min(startX, curX);
+        const top = Math.min(startY, curY);
+        const width = Math.abs(startX - curX);
+        const height = Math.abs(startY - curY);
+
+        box.style.left = left + "px";
+        box.style.top = top + "px";
+        box.style.width = width + "px";
+        box.style.height = height + "px";
       });
 
       canvas.addEventListener("mouseup", (e) => {
         if (!isSelecting) return;
         isSelecting = false;
+        box.style.display = "none";
 
         const rect = canvas.getBoundingClientRect();
         const endX = e.clientX - rect.left;
@@ -1602,14 +1736,20 @@
         const xParam = state.selectedCorrX;
         const yParam = state.selectedCorrY;
         const data = state.filteredData;
+        if (!data || data.length === 0) return;
 
         let xvals = data.map(r => Number(r[xParam])).filter(v => !isNaN(v));
         let yvals = data.map(r => Number(r[yParam])).filter(v => !isNaN(v));
+
+        if (xvals.length === 0 || yvals.length === 0) return;
 
         let xMin = Math.min(...xvals);
         let xMax = Math.max(...xvals);
         let yMin = Math.min(...yvals);
         let yMax = Math.max(...yvals);
+
+        if (xMin === xMax) { xMin -= 0.5; xMax += 0.5; }
+        if (yMin === yMax) { yMin -= 0.5; yMax += 0.5; }
 
         if (state.xScale === "log" && xMin > 0) {
           xMin = Math.log10(xMin);
@@ -1620,10 +1760,29 @@
           yMax = Math.log10(yMax);
         }
 
-        const x1_norm = (Math.min(startX, endX) - margin) / plotW * (xMax - xMin) + xMin;
-        const x2_norm = (Math.max(startX, endX) - margin) / plotW * (xMax - xMin) + xMin;
-        const y1_norm = yMax - (Math.max(startY, endY) - margin) / plotH * (yMax - yMin);
-        const y2_norm = yMax - (Math.min(startY, endY) - margin) / plotH * (yMax - yMin);
+        const xRangeDiff = xMax - xMin;
+        const yRangeDiff = yMax - yMin;
+
+        const x1_norm = (Math.min(startX, endX) - margin) / plotW * xRangeDiff + xMin;
+        const x2_norm = (Math.max(startX, endX) - margin) / plotW * xRangeDiff + xMin;
+        const y1_norm = yMax - (Math.max(startY, endY) - margin) / plotH * yRangeDiff;
+        const y2_norm = yMax - (Math.min(startY, endY) - margin) / plotH * yRangeDiff;
+
+        // Fail-safe: 檢查是否有任何點在範圍內
+        const hasPoints = data.some(row => {
+          let x = Number(row[xParam]);
+          let y = Number(row[yParam]);
+          if (isNaN(x) || isNaN(y)) return false;
+          if (state.xScale === "log" && x > 0) x = Math.log10(x);
+          if (state.yScale === "log" && y > 0) y = Math.log10(y);
+          return x >= x1_norm && x <= x2_norm && y >= y1_norm && y <= y2_norm;
+        });
+
+        if (!hasPoints) {
+          state.highlightIndices.clear();
+          triggerRedraw();
+          return;
+        }
 
         state.highlightIndices.clear();
         data.forEach((row, idx) => {
@@ -1644,14 +1803,258 @@
 
     function initBoxCanvasEvents() {
       const canvas = document.getElementById("box-canvas");
-      if (!canvas) return;
-      // 暫時略過細節實現
+      const box = document.getElementById("box-selection-box");
+      if (!canvas || !box) return;
+
+      let isSelecting = false;
+      let startX, startY;
+
+      canvas.addEventListener("mousedown", (e) => {
+        if (!state.filteredData || state.filteredData.length === 0) return;
+        const rect = canvas.getBoundingClientRect();
+        startX = e.clientX - rect.left;
+        startY = e.clientY - rect.top;
+        isSelecting = true;
+
+        box.style.left = startX + "px";
+        box.style.top = startY + "px";
+        box.style.width = "0px";
+        box.style.height = "0px";
+        box.style.display = "block";
+      });
+
+      canvas.addEventListener("mousemove", (e) => {
+        if (!isSelecting) return;
+        const rect = canvas.getBoundingClientRect();
+        const curX = Math.max(0, Math.min(canvas.width, e.clientX - rect.left));
+        const curY = Math.max(0, Math.min(canvas.height, e.clientY - rect.top));
+
+        const left = Math.min(startX, curX);
+        const top = Math.min(startY, curY);
+        const width = Math.abs(startX - curX);
+        const height = Math.abs(startY - curY);
+
+        box.style.left = left + "px";
+        box.style.top = top + "px";
+        box.style.width = width + "px";
+        box.style.height = height + "px";
+      });
+
+      canvas.addEventListener("mouseup", (e) => {
+        if (!isSelecting) return;
+        isSelecting = false;
+        box.style.display = "none";
+
+        const rect = canvas.getBoundingClientRect();
+        const endX = e.clientX - rect.left;
+        const endY = e.clientY - rect.top;
+
+        const margin = 40;
+        const plotW = canvas.width - 2 * margin;
+        const plotH = canvas.height - 2 * margin;
+
+        if (startX < margin || startX > canvas.width - margin || startY < margin || startY > canvas.height - margin ||
+            endX < margin || endX > canvas.width - margin || endY < margin || endY > canvas.height - margin) {
+          return;
+        }
+
+        const params = state.selectedDistParams;
+        const data = state.filteredData;
+        if (params.length === 0 || data.length === 0) return;
+
+        const boxStats = params.map(param => ({
+          param,
+          stats: calculateBoxPlotStats(data.map(r => Number(r[param])).filter(v => !isNaN(v)))
+        })).filter(b => b.stats !== null);
+
+        if (boxStats.length === 0) return;
+
+        const allVals = boxStats.flatMap(b => [b.stats.min, b.stats.max]);
+        let yMin = Math.min(...allVals);
+        let yMax = Math.max(...allVals);
+        if (yMin === yMax) { yMin -= 0.5; yMax += 0.5; }
+
+        if (state.distBoxYScale === "log" && yMin > 0) {
+          yMin = Math.log10(yMin);
+          yMax = Math.log10(yMax);
+        }
+
+        const yRangeDiff = yMax - yMin;
+        const y1_norm = yMax - (Math.max(startY, endY) - margin) / plotH * yRangeDiff;
+        const y2_norm = yMax - (Math.min(startY, endY) - margin) / plotH * yRangeDiff;
+
+        // 判斷選中哪些參數箱位
+        const boxSpacing = plotW / boxStats.length;
+        const selectedParams = [];
+        boxStats.forEach((item, idx) => {
+          const x = margin + (idx + 0.5) * boxSpacing;
+          const leftBox = x - boxSpacing / 2;
+          const rightBox = x + boxSpacing / 2;
+          
+          const selMinX = Math.min(startX, endX);
+          const selMaxX = Math.max(startX, endX);
+
+          if (rightBox >= selMinX && leftBox <= selMaxX) {
+            selectedParams.push(item.param);
+          }
+        });
+
+        if (selectedParams.length === 0) {
+          state.highlightIndices.clear();
+          triggerRedraw();
+          return;
+        }
+
+        // Fail-safe: 判斷是否有任何點在框選範圍內
+        const hasPoints = data.some(row => {
+          for (const param of selectedParams) {
+            let val = Number(row[param]);
+            if (isNaN(val)) continue;
+            if (state.distBoxYScale === "log" && val > 0) val = Math.log10(val);
+            if (val >= y1_norm && val <= y2_norm) return true;
+          }
+          return false;
+        });
+
+        if (!hasPoints) {
+          state.highlightIndices.clear();
+          triggerRedraw();
+          return;
+        }
+
+        state.highlightIndices.clear();
+        data.forEach((row, idx) => {
+          for (const param of selectedParams) {
+            let val = Number(row[param]);
+            if (isNaN(val)) continue;
+            if (state.distBoxYScale === "log" && val > 0) val = Math.log10(val);
+            if (val >= y1_norm && val <= y2_norm) {
+              state.highlightIndices.add(idx);
+              break;
+            }
+          }
+        });
+
+        triggerRedraw();
+      });
     }
 
     function initHistCanvasEvents() {
       const canvas = document.getElementById("hist-canvas");
-      if (!canvas) return;
-      // 暫時略過細節實現
+      const box = document.getElementById("hist-selection-box");
+      if (!canvas || !box) return;
+
+      let isSelecting = false;
+      let startX, startY;
+
+      canvas.addEventListener("mousedown", (e) => {
+        if (!state.filteredData || state.filteredData.length === 0) return;
+        const rect = canvas.getBoundingClientRect();
+        startX = e.clientX - rect.left;
+        startY = e.clientY - rect.top;
+        isSelecting = true;
+
+        box.style.left = startX + "px";
+        box.style.top = startY + "px";
+        box.style.width = "0px";
+        box.style.height = "0px";
+        box.style.display = "block";
+      });
+
+      canvas.addEventListener("mousemove", (e) => {
+        if (!isSelecting) return;
+        const rect = canvas.getBoundingClientRect();
+        const curX = Math.max(0, Math.min(canvas.width, e.clientX - rect.left));
+        const curY = Math.max(0, Math.min(canvas.height, e.clientY - rect.top));
+
+        const left = Math.min(startX, curX);
+        const top = Math.min(startY, curY);
+        const width = Math.abs(startX - curX);
+        const height = Math.abs(startY - curY);
+
+        box.style.left = left + "px";
+        box.style.top = top + "px";
+        box.style.width = width + "px";
+        box.style.height = height + "px";
+      });
+
+      canvas.addEventListener("mouseup", (e) => {
+        if (!isSelecting) return;
+        isSelecting = false;
+        box.style.display = "none";
+
+        const rect = canvas.getBoundingClientRect();
+        const endX = e.clientX - rect.left;
+        const endY = e.clientY - rect.top;
+
+        const margin = 40;
+        const plotW = canvas.width - 2 * margin;
+        const plotH = canvas.height - 2 * margin;
+
+        if (startX < margin || startX > canvas.width - margin || startY < margin || startY > canvas.height - margin ||
+            endX < margin || endX > canvas.width - margin || endY < margin || endY > canvas.height - margin) {
+          return;
+        }
+
+        const params = state.selectedDistParams;
+        const data = state.filteredData;
+        if (params.length === 0 || data.length === 0) return;
+
+        const activeHistograms = params.map(param => {
+          const vals = data.map(r => Number(r[param])).filter(v => !isNaN(v));
+          if (vals.length === 0) return null;
+          let min = Math.min(...vals);
+          let max = Math.max(...vals);
+          if (state.distXScale === "log" && min > 0) {
+            const logVals = vals.filter(v => v > 0).map(Math.log10);
+            min = Math.min(...logVals);
+            max = Math.max(...logVals);
+          }
+          return { min, max };
+        }).filter(h => h !== null);
+
+        if (activeHistograms.length === 0) return;
+
+        let globalMin = Math.min(...activeHistograms.map(h => h.min));
+        let globalMax = Math.max(...activeHistograms.map(h => h.max));
+        if (globalMin === globalMax) { globalMin -= 0.5; globalMax += 0.5; }
+
+        const xRangeDiff = globalMax - globalMin;
+        const x1_norm = (Math.min(startX, endX) - margin) / plotW * xRangeDiff + globalMin;
+        const x2_norm = (Math.max(startX, endX) - margin) / plotW * xRangeDiff + globalMin;
+
+        // Fail-safe: 判斷是否有任何點在範圍內
+        const hasPoints = data.some(row => {
+          for (const param of params) {
+            let val = Number(row[param]);
+            if (isNaN(val)) continue;
+            if (state.distXScale === "log" && val > 0) val = Math.log10(val);
+            if (val >= x1_norm && val <= x2_norm) return true;
+          }
+          return false;
+        });
+
+        if (!hasPoints) {
+          state.highlightIndices.clear();
+          triggerRedraw();
+          return;
+        }
+
+        state.highlightIndices.clear();
+        data.forEach((row, idx) => {
+          for (const param of params) {
+            let val = Number(row[param]);
+            if (isNaN(val)) continue;
+            if (state.distXScale === "log" && val > 0) val = Math.log10(val);
+            if (val >= x1_norm && val <= x2_norm) {
+              state.highlightIndices.add(idx);
+              break;
+            }
+          }
+        });
+
+        triggerRedraw();
+      });
     }
 
     // =================================================================
