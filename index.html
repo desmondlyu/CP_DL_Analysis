@@ -1482,6 +1482,37 @@
         ctx.stroke();
       });
 
+      // 繪製高亮抖動點雲
+      if (state.highlightIndices.size > 0) {
+        boxStats.forEach((item, idx) => {
+          const x = margin + (idx + 0.5) * boxSpacing;
+
+          data.forEach((row, rowIdx) => {
+            if (state.highlightIndices.has(rowIdx)) {
+              let val = Number(row[item.param]);
+              if (isNaN(val)) return;
+
+              if (state.distBoxYScale === "log") {
+                if (val > 0) val = Math.log10(val);
+                else return;
+              }
+
+              const py = margin + plotH - ((val - yMin) / (yMax - yMin)) * plotH;
+              
+              // 水平隨機抖動
+              const jitter = (Math.random() - 0.5) * (boxWidth * 0.6);
+              const px = x + jitter;
+
+              ctx.strokeStyle = "#ef4444";
+              ctx.lineWidth = 1.5;
+              ctx.beginPath();
+              ctx.arc(px, py, 3, 0, 2 * Math.PI);
+              ctx.stroke();
+            }
+          });
+        });
+      }
+
       // 軸
       ctx.strokeStyle = "#374151";
       ctx.lineWidth = 1;
@@ -1578,6 +1609,53 @@
           ctx.globalAlpha = 1;
         });
       });
+
+      // 繪製高亮點的直方柱 (紅色空心框)
+      if (state.highlightIndices.size > 0 && histograms.length > 0) {
+        histograms.forEach(h => {
+          const maxCount = Math.max(...h.histogram);
+          let yMax = maxCount;
+          if (state.distYScale === "log" && maxCount > 0) {
+            yMax = Math.log10(maxCount);
+          }
+
+          // 收集高亮點的值並計算高亮分箱
+          const highlightVals = [];
+          data.forEach((row, rowIdx) => {
+            if (state.highlightIndices.has(rowIdx)) {
+              let v = Number(row[h.param]);
+              if (!isNaN(v)) {
+                if (state.distXScale === "log" && v > 0) v = Math.log10(v);
+                highlightVals.push(v);
+              }
+            }
+          });
+
+          const bins = 15;
+          const binSize = (h.max - h.min) / bins;
+          const highlightHist = new Array(bins).fill(0);
+          highlightVals.forEach(v => {
+            const binIdx = Math.floor((v - h.min) / binSize);
+            if (binIdx >= 0 && binIdx < bins) highlightHist[binIdx]++;
+          });
+
+          const barW = plotW / (bins * (histograms.length + 1));
+          const offset = h.idx * barW;
+
+          highlightHist.forEach((count, binIdx) => {
+            if (count === 0) return;
+            let barH = state.distYScale === "log" && count > 0 ? Math.log10(count) : count;
+            barH = (barH / yMax) * plotH;
+
+            const x = margin + binIdx * plotW / bins + offset;
+            const y = margin + plotH - barH;
+
+            ctx.strokeStyle = "#ef4444";
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(x, y, barW * 0.8, barH);
+          });
+        });
+      }
     }
 
     // =================================================================
